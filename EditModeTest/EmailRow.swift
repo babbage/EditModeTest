@@ -11,27 +11,30 @@ struct EmailRow: View {
     @ObservedObject var email: Email
     @FocusState private var focusedField: String?
     @Environment(\.editMode) private var editMode
-    @State var enableTextFields: Bool
-
     var body: some View {
         // let _ = Self._printChanges()
 
         VStack {
-            TextField("label", text: $email.label)
-                .focused($focusedField, equals: "label-\(email.id.uuidString)")
-                .font(.subheadline)
-            TextField("email", text: $email.value)
-                .focused($focusedField, equals: "email-\(email.id.uuidString)")
-        }
-        .disabled(!enableTextFields) // only allow editing text when in edit mode
-        .onChange(of: editMode?.wrappedValue) { newValue in
-            print("EmailRow editMode changed: \(newValue != nil ? String(describing:newValue!) : "nil")")
-            enableTextFields = newValue?.isEditing ?? false
+            if editMode?.wrappedValue.isEditing == true {
+                TextField("label", text: $email.label)
+                    .focused($focusedField, equals: "label-\(email.id.uuidString)")
+                    .font(.subheadline)
+            } else {
+                Text(email.label)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.subheadline)
+            }
+            if editMode?.wrappedValue.isEditing == true {
+                TextField("email", text: $email.value)
+                    .focused($focusedField, equals: "email-\(email.id.uuidString)")
+            } else {
+                Text(email.value)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
     }
     
     init(email: Email) {
         self.email = email
-        _enableTextFields = State(initialValue: false)
     }
 }
